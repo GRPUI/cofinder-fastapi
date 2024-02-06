@@ -45,11 +45,20 @@ async def get_mini_card_info(
     WHERE product = $1 AND source = $2
     ORDER BY date DESC
     LIMIT 1;""", product_id, source)
-    print(product_props)
     if product_props is None:
         return {}
     product_props = zip(("id", "name", "price", "link"), product_props)
     return dict(product_props)
+
+
+async def get_products_info_by_ids(connection: Connection, product_ids: List[int]) -> List[Dict[str, Any]]:
+    products = []
+    for product_id in product_ids:
+        source = await get_lowest_price_source(connection, product_id)
+        product_props = await get_mini_card_info(connection, product_id, source)
+        products.append(product_props)
+
+    return products
 
 
 async def get_main_page(
@@ -60,11 +69,7 @@ async def get_main_page(
                 LIMIT 10;""")
 
     products_ids = list(map(lambda x: x[0], product_ids))
-    products = []
-    for product_id in products_ids:
-        source = await get_lowest_price_source(connection, product_id)
-        product_props = await get_mini_card_info(connection, product_id, source)
-        products.append(product_props)
+    products = await get_products_info_by_ids(connection, products_ids)
 
     return products
 
@@ -78,12 +83,7 @@ async def get_products_by_category(
     WHERE categories.id = $1;""", category_id)
 
     products_ids = list(map(lambda x: x[0], product_ids))
-    products = []
-    for product_id in products_ids:
-        source = await get_lowest_price_source(connection, product_id)
-        product_props = await get_mini_card_info(connection, product_id, source)
-        products.append(product_props)
-
+    products = await get_products_info_by_ids(connection, products_ids)
     return products
 
 

@@ -7,12 +7,20 @@ from fastapi import FastAPI
 from deps import DatabaseConnectionMarker
 from routers import products
 
+import dotenv
+import os
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    dotenv.load_dotenv()
+    database = os.getenv(key="DB_NAME")
+    user = os.getenv(key="DB_USER")
+    password = os.getenv(key="DB_PASSWORD")
+    host = os.getenv(key="DB_HOST")
 
     connection = await asyncpg.connect(
-        "postgresql://cofinder:j8FAC2DBYWZpvGNknPKR4uTwybtfxUcemqsMad73X6L5Q9gzHS@localhost/postgres"
+        f"postgresql://{user}:{password}@{host}/{database}"
     )
 
     app.dependency_overrides.update(
