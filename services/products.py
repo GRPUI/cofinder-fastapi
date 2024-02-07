@@ -97,11 +97,11 @@ async def get_product(
     INNER JOIN categories ON products.category = categories.id
     WHERE products.id = $1;""", product_id)
 
-    prices = []
+    prices = {}
 
     for source in sources:
         price = await get_newest_price_by_source(connection, product_id, source)
-        prices.append({source: price})
+        prices[source] = price
 
     product_props = dict(zip(("id", "name", "category", "description", "image"), tuple(full_price_info)))
     product_props["prices"] = prices

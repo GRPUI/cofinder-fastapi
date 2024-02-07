@@ -22,3 +22,13 @@ services:
       - "8000:8000"
     depends_on:
       - postgres-db
+
+  react:
+    build:
+      context: ../cofinder-frontend
+      dockerfile: ../cofinder-frontend/Dockerfile
+    container_name: react
+    ports:
+      - "3000:3000"
+    depends_on:
+      - fastapi
