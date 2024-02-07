@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 import asyncpg
 import uvicorn
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from deps import DatabaseConnectionMarker
 from routers import products
 
@@ -38,6 +39,14 @@ def register_app() -> FastAPI:
     app = FastAPI(lifespan=lifespan)
 
     app.include_router(products.router, prefix="/products")
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=os.getenv("ALLOWED_ORIGINS").split(","),
+        allow_credentials=True,
+        allow_methods=os.getenv("ALLOWED_METHODS").split(","),
+        allow_headers=os.getenv("ALLOWED_HEADERS").split(",")
+    )
 
     return app
 
