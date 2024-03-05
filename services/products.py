@@ -106,3 +106,19 @@ async def get_product(
     product_props = dict(zip(("id", "name", "category", "description", "image"), tuple(full_price_info)))
     product_props["prices"] = prices
     return product_props
+
+
+async def get_search_results(
+    search_query: str,
+    connection: Connection
+) -> List[Dict[str, Any]]:
+    products = await connection.fetch("""
+    SELECT product_vectors.id, name, ts_rank(product_vectors.to_tsvector, plainto_tsquery('russian', $1)) AS rank
+    FROM products
+    INNER JOIN product_vectors on products.id = product_vectors.id
+    WHERE product_vectors.to_tsvector @@ plainto_tsquery('russian', $1)
+    ORDER BY rank DESC;
+    """, search_query)
+
+    products = list(map(lambda x: dict(zip(("id", "name"), x)), products))
+    return products

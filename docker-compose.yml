@@ -22,6 +22,7 @@ services:
       - "8000:8000"
     depends_on:
       - postgres-db
+      - redis
 
   react:
     build:
@@ -32,3 +33,9 @@ services:
       - "3000:3000"
     depends_on:
       - fastapi
+
+  redis:
+    image: redis:6.2.6-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
