@@ -26,8 +26,8 @@ services:
 
   react:
     build:
-      context: ../cofinder-frontend
-      dockerfile: ../cofinder-frontend/Dockerfile
+      context: ../pcost-frontend
+      dockerfile: ../pcost-frontend/Dockerfile
     container_name: react
     ports:
       - "3000:3000"
