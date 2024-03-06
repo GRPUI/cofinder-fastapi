@@ -1,6 +1,14 @@
 version: '3.8'
 
 services:
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    container_name: nginx
+    ports:
+      - "80:80"
+
   postgres-db:
     image: postgres:16.1-alpine
     container_name: postgres
@@ -23,6 +31,7 @@ services:
     depends_on:
       - postgres-db
       - redis
+      - nginx
 
   react:
     build:
@@ -33,6 +42,7 @@ services:
       - "5173:5173"
     depends_on:
       - fastapi
+      - nginx
 
   redis:
     image: redis:6.2.6-alpine
