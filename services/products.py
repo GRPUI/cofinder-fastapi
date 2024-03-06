@@ -103,7 +103,7 @@ async def get_product(
         price = await get_newest_price_by_source(connection, product_id, source)
         prices[source] = price
 
-    product_props = dict(zip(("id", "name", "category", "description", "image"), tuple(full_price_info)))
+    product_props = dict(zip(("id", "name", "category", "description", "image"), full_price_info))
     product_props["prices"] = prices
     return product_props
 
@@ -120,5 +120,5 @@ async def get_search_results(
     ORDER BY rank DESC;
     """, search_query)
 
-    products = list(map(lambda x: dict(zip(("id", "name"), x)), products))
+    products = await get_products_info_by_ids(connection, list(map(lambda x: x[0], products)))
     return products
