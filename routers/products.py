@@ -21,6 +21,12 @@ async def get_products_by_category(category_id: int, connection: Connection = De
     return await products.get_products_by_category(category_id, connection)
 
 
+@router.get("/categories/")
+@cache(expire=3600)
+async def get_categories(connection: Connection = Depends(DatabaseConnectionMarker)):
+    return await products.get_categories(connection)
+
+
 @router.get("/{product_id}")
 @cache(600)
 async def get_product(product_id: int, connection: Connection = Depends(DatabaseConnectionMarker)):

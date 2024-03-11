@@ -14,6 +14,11 @@ async def get_lowest_price_source(
     return source
 
 
+async def get_categories(connection: Connection):
+    categories = await connection.fetch("""SELECT name FROM categories""")
+    return [{"name": name} for name in categories]
+
+
 async def get_all_sources(
         connection: Connection,
         product_id: int) -> List[str]:
