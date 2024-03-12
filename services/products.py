@@ -71,7 +71,7 @@ async def get_main_page(
 ) -> List[Dict[str, Any]]:
     product_ids = await connection.fetch("""SELECT id FROM products
                 ORDER BY RANDOM()
-                LIMIT 10;""")
+                LIMIT 12;""")
 
     products_ids = list(map(lambda x: x[0], product_ids))
     products = await get_products_info_by_ids(connection, products_ids)
