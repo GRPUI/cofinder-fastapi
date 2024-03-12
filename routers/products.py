@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends
 from fastapi_cache.decorator import cache
 
 from deps import DatabaseConnectionMarker
+from models.product import AddProductModel
 from services import products
 
 router = APIRouter()
@@ -42,3 +43,11 @@ async def get_search_results(
     if not query:
         return []
     return await products.get_search_results(query, connection)
+
+
+@router.post("/add/")
+async def add_product(
+    product: AddProductModel,
+    connection: Connection = Depends(DatabaseConnectionMarker)
+):
+    return await products.add_product(connection, product)

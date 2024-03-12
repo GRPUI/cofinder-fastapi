@@ -2,6 +2,8 @@ from typing import List, Dict, Any
 
 from asyncpg import Connection
 
+from models.product import AddProductModel
+
 
 async def get_lowest_price_source(
         connection: Connection,
@@ -127,3 +129,15 @@ async def get_search_results(
 
     products = await get_products_info_by_ids(connection, list(map(lambda x: x[0], products)))
     return products
+
+
+async def add_product(
+    connection: Connection,
+    product: AddProductModel
+) -> None:
+    await connection.execute("""
+    BEGIN;
+    INSERT INTO products (name, category, description, image) VALUES ($1, $2, $3, $4);
+    INSERT INTO prices(product, price, source, link, date) VALUES((SELECT id FROM products WHERE name = 'GIGABYTE A520M H'), $5, $6, $7, CURRENT_TIMESTAMP);
+    INSERT INTO product_vectors(id, to_tsvector) VALUES((SELECT id FROM products WHERE name = 'GIGABYTE A520M H'), to_tsvector('russian', (SELECT concat(name, ' ', description) FROM products WHERE name = 'GIGABYTE A520M H')));
+    COMMIT;""", product.name, product.category, product.description, product.image, product.price, product.source, product.link)
