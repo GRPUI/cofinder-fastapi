@@ -135,9 +135,20 @@ async def add_product(
     connection: Connection,
     product: AddProductModel
 ) -> None:
-    await connection.execute("""
-    BEGIN;
-    INSERT INTO products (name, category, description, image) VALUES ($1, $2, $3, $4);
-    INSERT INTO prices(product, price, source, link, date) VALUES((SELECT id FROM products WHERE name = 'GIGABYTE A520M H'), $5, $6, $7, CURRENT_TIMESTAMP);
-    INSERT INTO product_vectors(id, to_tsvector) VALUES((SELECT id FROM products WHERE name = 'GIGABYTE A520M H'), to_tsvector('russian', (SELECT concat(name, ' ', description) FROM products WHERE name = 'GIGABYTE A520M H')));
-    COMMIT;""", product.name, product.category, product.description, product.image, product.price, product.source, product.link)
+    async with connection.transaction():
+        await connection.execute(
+            "INSERT INTO products (name, category, description, image) "
+            "VALUES ($1, $2, $3, $4);",
+            product.name, product.category, product.description, product.image
+        )
+        await connection.execute(
+            "INSERT INTO prices(product, price, source, link, date) "
+            "VALUES((SELECT id FROM products WHERE name = $1), $2, $3, $4, CURRENT_TIMESTAMP);",
+            product.name, product.price, product.source, product.link
+        )
+        await connection.execute(
+            "INSERT INTO product_vectors(id, to_tsvector) "
+            "VALUES((SELECT id FROM products WHERE name = $1), "
+            "to_tsvector('russian', (SELECT concat(name, ' ', description) FROM products WHERE name = $1)));",
+            product.name
+        )
