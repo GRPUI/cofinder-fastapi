@@ -11,6 +11,7 @@ services:
     depends_on:
       - react
       - fastapi
+      - certbot
 
   postgres-db:
     image: postgres:16.1-alpine
@@ -50,3 +51,18 @@ services:
     container_name: redis
     ports:
       - "6379:6379"
+
+  certbot:
+    ports:
+      - "6000:80"
+    env_file:
+      - .env
+    volumes:
+      - ./nginx/:/etc/nginx/
+    build:
+      context: ./certbot
+      dockerfile: Dockerfile
+      # задаем переменные среды
+      args:
+        DOMAIN_EMAIL: ${DOMAIN_EMAIL}
+        DOMAIN_URL: ${DOMAIN_URL}
